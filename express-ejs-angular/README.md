@@ -1,6 +1,6 @@
 # express-ejs-angular template
 
-This template is designed to use the express framework in conjunction with ejs templates and optionally, angular components for dynamic pages. The directory structure is as follows:
+This template uses the express framework in conjunction with ejs templates and optionally, angular components for dynamic pages. The directory structure is as follows:
 
 ### Configuration (config.json)
 
