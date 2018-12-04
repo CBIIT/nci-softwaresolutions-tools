@@ -1,10 +1,10 @@
-#### express-ejs-angular template
+# express-ejs-angular template
 
-This template is designed to use the express framework in conjunction with ejs templates and optionally, angular components on dynamic pages. The directory structure is as follows:
+This template is designed to use the express framework in conjunction with ejs templates and optionally, angular components for dynamic pages. The directory structure is as follows:
 
 ### Configuration (config.json)
 
-This file contains global configuration, as well as any constants that may be used in ejs templates (such as web root, navbar routes, etc). The `config.json.dev.example` and `config.json.prod.example` files are sample configurations.
+This file contains global configuration, as well as any constants that may be used in ejs templates (such as application name, root url, navbar routes, etc). The `config.json.dev.example` and `config.json.prod.example` files are sample configurations.
 
 
 ### Application Client (/client)
