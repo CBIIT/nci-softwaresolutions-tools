@@ -21,6 +21,7 @@
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "express-ejs-layouts": "^2.5.0",
+    "fs-extra": "7.0.1",
     "morgan": "^1.9.1",
     "shx": "0.3.2",
     "winston": "^3.1.0",
