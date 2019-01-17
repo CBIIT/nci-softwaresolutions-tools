@@ -19,6 +19,7 @@
   "dependencies": {
     "compose-middleware": "5.0.1",
     "compression": "^1.7.3",
+    "cors": "2.8.5",
     "express": "^4.16.4",
     "fs-extra": "7.0.1",
     "helmet": "3.15.0",
