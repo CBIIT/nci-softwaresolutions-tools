@@ -1,11 +1,6 @@
 const express = require('express');
-const compression = require('compression');
 const router = express.Router();
 
-router.use(compression());
-
-router.get('/ping', (req, res) => {
-    res.send('true');
-});
+router.get('/ping', (req, res) => res.json(true));
 
 module.exports = router;
