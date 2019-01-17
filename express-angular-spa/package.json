@@ -5,9 +5,10 @@
   "main": "server/server.js",
   "scripts": {
     "build": "cd client && npm run build",
-    "start": "set NODE_ENV=production && node server/server.js",
+    "start": "pm2 start server/server.js --name app-name",
+    "stop": "pm2 stop server/server.js --name app-name",
+    "start:dev": "npm run start -- --watch && pm2 logs app-name",
     "start:client": "cd client && npm run start",
-    "start:dev": "nodemon --watch server server/server.js",
     "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:e2e": "mocha -R xunit -O output=test/e2e.xml test/end-to-end/*test.js && shx cat test/e2e.xml",
     "test:integration": "mocha -R xunit -O output=test/integration.xml test/integration/*test.js && shx cat test/integration.xml",
@@ -16,19 +17,20 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "compose-middleware": "5.0.1",
     "compression": "^1.7.3",
-    "dotenv": "^6.1.0",
-    "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "express-ejs-layouts": "^2.5.0",
+    "fs-extra": "7.0.1",
+    "helmet": "3.15.0",
+    "moment": "2.23.0",
     "morgan": "^1.9.1",
+    "pm2": "3.2.9",
+    "rotating-file-stream": "1.4.0",
     "shx": "0.3.2",
-    "winston": "^3.1.0",
-    "winston-daily-rotate-file": "^3.5.1"
+    "winston": "^3.1.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^5.2.0",
-    "nodemon": "^1.18.7"
+    "mocha": "^5.2.0"
   }
 }
