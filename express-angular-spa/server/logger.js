@@ -1,37 +1,27 @@
-const fs = require('fs-extra');
-const path = require('path')
-const winston = require('winston');
+const moment = require('moment');
+const rfs = require('rotating-file-stream');
+const { ensureDirSync } = require('fs-extra');
 const { createLogger, format, transports } = require('winston');
-const { combine, timestamp, printf } = format;
-require('winston-daily-rotate-file');
+const { folders: { logs: logsFolder } } = require('../config.json');
 
-const config = require('../config.json');
-const logFolder = config.folders.logs;
-const logFormat = combine(
-    timestamp(),
-    printf(info => `[${info.timestamp}] [${info.level}] ${info.message}`)
-)
+const dailyFileStream = filename => rfs(
+    date => !date ? filename : `${filename}.${moment(date).format('YYYY-MM-DD')}`,
+    { interval: '1d', path: logsFolder }
+);
 
-fs.ensureDirSync(logFolder);
-
-const winstonTransports = [
-    new transports.DailyRotateFile({
-        level: 'info',
-        filename: path.join(logFolder, 'app.%DATE%.log'),
-        datePattern: 'YYYY-MM-DD',
-        handleExceptions: true,
-        format: logFormat,
-    }),
-];
-
-if (!config.production)
-    winstonTransports.push(new transports.Console({
-        level: 'debug',
-        handleExceptions: true,
-        format: logFormat,
-    }));
-
+ensureDirSync(logsFolder);
 module.exports = createLogger({
+    level: process.env.LOG_LEVEL || 'debug',
     exitOnError: false,
-    transports: winstonTransports,
+    handleExceptions: true,
+    format: format.combine(
+        format.timestamp(),
+        format.printf(e => `[${e.timestamp}] [${e.level}] ${e.message}`)
+    ),
+    transports: [
+        new transports.Console(),
+        new transports.Stream({
+            stream: dailyFileStream('app.log'),
+        }),
+    ],
 });
