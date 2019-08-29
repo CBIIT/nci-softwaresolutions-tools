@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import json
 import logging
 import re
 import ssl
 import sys
 import traceback
+from argparse import ArgumentParser
 from base64 import b64encode
 from pprint import pformat
 from urllib import urlencode
@@ -161,9 +161,24 @@ def has_required_fields(names):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser('A script to import IRIS data into Jira tickets for the CCRGDS project')
-    parser.add_argument('-d', '--dry-run', action='store_true', default=False, dest='dry_run')
-    parser.add_argument('-f', '--force', action='store_true', default=False, dest='force')
+    parser = ArgumentParser(
+        prog='sync.py',
+        description='A script to import IRIS data into Jira tickets for the CCRGDS project')
+
+    parser.add_argument(
+        '-d', '--dry-run',
+        action='store_true',
+        default=False,
+        dest='dry_run',
+        help='only show issues which would be updated by this script, instead of actually updating them')
+
+    parser.add_argument(
+        '-f', '--force',
+        action='store_true',
+        default=False,
+        dest='force',
+        help='run this script without explicitly typing in YES at the prompt')
+
     return parser.parse_args()
 
 if __name__ == '__main__':
