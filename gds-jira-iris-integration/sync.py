@@ -2,24 +2,27 @@
 
 import json
 import logging
+import re
 import ssl
+import traceback
 from base64 import b64encode
 from pprint import pformat
 from urllib import urlencode
 from urllib2 import Request, urlopen
 from ConfigParser import SafeConfigParser
+from HTMLParser import HTMLParser
 
 # The following mappings are used between JIRA/IRIS:
 #
-# IRIS Field             | JIRA Field               | JIRA Field ID
-# -------------------    |--------------------------|-------------------
-# protocolId             | Protocol ID              | customfield_10500
-# principalInvestigator  | Principal Investigator   | customfield_10501
-# (not applicable)       | GDS Answer               | customfield_10502
-# branch                 | Primary Branch           | customfield_10510
-# status                 | Study Status             | customfield_10605
-# zNumber                | Z1A                      | customfield_11700
-# (not applicable)       | GSR/Study Sensitivity    | customfield_11701
+# IRIS Field             | JIRA Field               | JIRA Field ID (dev)  | JIRA Field ID
+# -------------------    |--------------------------|----------------------|-------------------
+# protocolId             | Protocol ID              | customfield_10500    | customfield_10221
+# principalInvestigator  | Principal Investigator   | customfield_10501    | customfield_10220
+# (not applicable)       | GDS answer               | customfield_10502    | customfield_10208
+# branch                 | Primary Branch           | customfield_10510    | customfield_10214
+# status                 | Study Status             | customfield_10605    | customfield_10216
+# zNumber                | Z1A                      | customfield_11700    | customfield_11000
+# (not applicable)       | GSR                      | customfield_11701    | customfield_11001
 
 
 # Load configuration
@@ -61,14 +64,6 @@ def get_issue(issue_key):
     return json.load(request(url, headers=headers))
 
 
-def get_issue_fields(issue_key):
-    """ Retrieves a JIRA issue's field metadata """
-    url = jira_host + '/rest/api/latest/issue/' + issue_key + '/editmeta'
-    logging.debug(url)
-    headers = basic_auth_header(jira_username, jira_password)
-    return json.load(request(url, headers=headers))
-
-
 def get_issue_types(project_keys):
     """ Retrieves JIRA issue types for a comma-separated list of projects """
     url = jira_host + '/rest/api/latest/issue/createmeta?' + urlencode({
@@ -78,6 +73,30 @@ def get_issue_types(project_keys):
     logging.debug(url)
     headers = basic_auth_header(jira_username, jira_password)
     return json.load(request(url, headers=headers))
+
+
+def get_fields_from_issue(issue_key):
+    """ Retrieves a JIRA issue's field metadata """
+    url = jira_host + '/rest/api/latest/issue/' + issue_key + '/editmeta'
+    logging.debug(url)
+    headers = basic_auth_header(jira_username, jira_password)
+    return json.load(request(url, headers=headers))
+
+
+def get_fields_from_project(project_key):
+    """ Retrieves JIRA fields for a project's first issue type """
+    issue_types = get_issue_types(project_key)['projects'][0]['issuetypes']
+    return issue_types[0]['fields']
+
+
+def map_fields_by_name(jira_fields):
+    """ Maps a dict of jira_fields by their names, instead of ids """
+    field_map = {}
+    for id, field in jira_fields.items():
+        name = field['name']
+        field.update(id=id)
+        field_map[name] = field
+    return field_map
 
 
 def search_issues(params):
@@ -99,10 +118,13 @@ def update_issue(issue_key, data):
 
 def get_protocol(protocol_id):
     """ Retrieves a single protocol from IRIS given a protocol id """
-    url = iris_host + '/api/v1/protocols/' + protocol_id + '.json'
-    logging.debug(url)
-    headers = basic_auth_header(iris_username, iris_password)
-    return json.load(request(url, headers=headers))
+    try:
+        url = iris_host + '/api/v1/protocols/' + protocol_id + '.json'
+        logging.debug(url)
+        headers = basic_auth_header(iris_username, iris_password)
+        return json.load(request(url, headers=headers))
+    except:
+        raise(Exception('Protocol "{}" was not found in IRIS'.format(protocol_id)))
 
 
 def search_protocols(query={}):
@@ -112,56 +134,113 @@ def search_protocols(query={}):
     headers = basic_auth_header(iris_username, iris_password)
     return json.load(request(url, headers=headers))
 
-# example: find all issues where the description contains the word 'metastatic'
-# results = search_issues({'jql': 'cf[10502] = Yes'})
-# logging.info(pformat(results))
+
+def parse_int(string):
+    return int(re.sub(r'[^\d]', '', string))
+
+
+def has_required_fields(names):
+    has_fields = True
+    required_fields = [
+        'GDS answer',
+        'Protocol ID',
+        'Principal Investigator',
+        'Primary Branch',
+        'Study Status',
+        'Z1A',
+    ]
+
+    for field in required_fields:
+        if field not in names:
+            logging.error('Missing ' + field)
+            has_fields = False
+
+    return has_fields
+
 
 if __name__ == '__main__':
+    import sys
 
     logging.info('Started job')
 #    logging.info(pformat(get_issue('CCRGDS-435')))
 
-    jira_fields = {
-        'protocol_id': 'customfield_10500',
-        'principal_investigator': 'customfield_10501',
-        'gds_answer': 'customfield_10502',
-        'primary_branch': 'customfield_10510',
-        'study_status': 'customfield_10605',
-        'Z1A': 'customfield_11700',
-        'GSR': 'customfield_11701',
-    }
+    # retrieve field names and schemas
+    logging.info('Retrieving field metadata')
+    project_fields = get_fields_from_project('CCRGDS')
+    fields = map_fields_by_name(project_fields)
+    # logging.debug(json.dumps(fields))
 
-    mapped_fields = {
-        jira_fields['protocol_id']: 'protocolId',
-        jira_fields['principal_investigator']: 'principalInvestigator',
-        jira_fields['primary_branch']: 'branch',
-        jira_fields['study_status']: 'status',
-        jira_fields['Z1A']: 'zNumber',
-    }
+    # exit if required fields were not found
+    if not has_required_fields(fields.keys()):
+        logging.error('Required fields not found')
+        sys.exit(1)
 
-    # custom_field_10502 corresponds to the 'GDS Answer' field
-    response = search_issues({'jql': 'cf[10502] = Yes', 'maxResults': 1000})
+    # find all issues where the 'GDS Answer' field is 'Yes'
+    logging.info('Searching for issues where "GDS answer" = "Yes"')
+    gds_answer_id = parse_int(fields['GDS answer']['id'])
+    response = search_issues({
+        'jql': 'cf[{}]=Yes'.format(gds_answer_id),
+        'maxResults': 1000
+    })
+
+    logging.info('Found %d issue(s)', response['total'])
+#    logging.info(json.dumps(response))
+
+    h = HTMLParser()
 
     for issue in response['issues'][20:21]:
         try:
-            # attempt to fetch the protocol from the IRIS api
-            protocol_id = issue['fields'][jira_fields['protocol_id']]
+            # shortcut for getting a jira field by its key
+            jira_field = lambda key: issue['fields'][fields[key]['id']]
+
+            logging.info('----------------------------------------------------------------------')
+            logging.info('[%s] Issue URL: %s/browse/%s', issue['key'], jira_host, issue['key'])
+            protocol_id = jira_field('Protocol ID')
+            logging.info('[%s] Syncing issue with protocol "%s"', issue['key'], protocol_id)
+
+            # check if protocol exists in iris (throws exception if not found)
+            logging.info('[%s] Checking if IRIS contains protocol "%s"', issue['key'], protocol_id)
             protocol = get_protocol(protocol_id)
+            logging.info('[%s] Success: IRIS contains protocol "%s"', issue['key'], protocol_id)
 
-            # retrieve fields of interest
-            updated_fields = {}
-            for key, iris_field in mapped_fields.items():
-                updated_fields[key] = protocol[iris_field]
+            # retrieve values for fields we are syncing
+            jira_data = {
+                'principal_investigator': jira_field('Principal Investigator'),
+                'primary_branch': jira_field('Primary Branch')['value'],
+                'study_status': jira_field('Study Status')['value'],
+                'z': jira_field('Z1A'),
+            }
 
-            logging.info(issue['key'])
-            logging.info(pformat(updated_fields))
+            iris_data = {
+                'principal_investigator': h.unescape(protocol['principalInvestigator']),
+                'primary_branch': h.unescape(protocol['branch']),
+                'study_status': h.unescape(protocol['status']),
+                'z': h.unescape(protocol['zNumber']),
+            }
 
-            update_issue(issue['key'], {
-                'fields': updated_fields
-            })
+            # skip updating if records match
+            if jira_data == iris_data:
+                logging.info('[%s] JIRA issue is already up to date')
+                continue
 
-        except:
-            logging.error('Failed to sync issue: ' + issue['key'])
-            logging.error('Reason: protocol not found: ' + protocol_id)
+            # otherwise, update the JIRA issue with data from IRIS
+            updated_fields = {
+                fields['Principal Investigator']['id']: iris_data['principal_investigator'],
+                fields['Primary Branch']['id']: {'value': iris_data['primary_branch']},
+                fields['Study Status']['id']: {'value': iris_data['study_status']},
+                fields['Z1A']['id']: iris_data['z'],
+            }
+
+            logging.info('[%s] JIRA data will be updated', issue['key'])
+            logging.info('[%s] JIRA data: \n%s', issue['key'], pformat(jira_data))
+            logging.info('[%s] IRIS data: \n%s', issue['key'], pformat(iris_data))
+
+            logging.info('[%s] Updating JIRA: \n%s', issue['key'], pformat(updated_fields))
+            update_issue(issue['key'], {'fields': updated_fields})
+            logging.info('[%s] Success: JIRA issue has been updated', issue['key'])
+
+        except Exception as e:
+            logging.error('[%s] Failed: %s', issue['key'], e)
+            logging.debug('[%s] Stack: %s', issue['key'], traceback.format_exc(1))
 
     logging.debug('Finished job')
