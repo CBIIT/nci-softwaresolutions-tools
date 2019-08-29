@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import argparse
 import json
 import logging
 import re
 import ssl
+import sys
 import traceback
 from base64 import b64encode
 from pprint import pformat
@@ -158,11 +160,21 @@ def has_required_fields(names):
     return has_fields
 
 
+def parse_args():
+    parser = argparse.ArgumentParser('A script to import IRIS data into Jira tickets for the CCRGDS project')
+    parser.add_argument('-d', '--dry-run', action='store_true', default=False, dest='dry_run')
+    parser.add_argument('-f', '--force', action='store_true', default=False, dest='force')
+    return parser.parse_args()
+
 if __name__ == '__main__':
-    import sys
+    args = parse_args()
+
+    if not args.force:
+        answer = raw_input('This script will import IRIS data into JIRA tickets for the CCRGDS project. Please enter YES to proceed: ')
+        if not answer == 'YES':
+            sys.exit(0)
 
     logging.info('Started job')
-#    logging.info(pformat(get_issue('CCRGDS-435')))
 
     # retrieve field names and schemas
     logging.info('Retrieving field metadata')
@@ -184,11 +196,10 @@ if __name__ == '__main__':
     })
 
     logging.info('Found %d issue(s)', response['total'])
-#    logging.info(json.dumps(response))
 
     h = HTMLParser()
 
-    for issue in response['issues'][20:21]:
+    for issue in response['issues']:
         try:
             # shortcut for getting a jira field by its key
             jira_field = lambda key: issue['fields'][fields[key]['id']]
@@ -211,19 +222,25 @@ if __name__ == '__main__':
                 'z': jira_field('Z1A'),
             }
 
+
+            unescape = lambda x: h.unescape(x) if x else None
             iris_data = {
-                'principal_investigator': h.unescape(protocol['principalInvestigator']),
-                'primary_branch': h.unescape(protocol['branch']),
-                'study_status': h.unescape(protocol['status']),
-                'z': h.unescape(protocol['zNumber']),
+                'principal_investigator': unescape(protocol['principalInvestigator']),
+                'primary_branch': unescape(protocol['branch']),
+                'study_status': unescape(protocol['status']),
+                'z': unescape(protocol['zNumber']),
             }
+
+            logging.info('[%s] JIRA data: \n%s', issue['key'], pformat(jira_data))
+            logging.info('[%s] IRIS data: \n%s', issue['key'], pformat(iris_data))
 
             # skip updating if records match
             if jira_data == iris_data:
-                logging.info('[%s] JIRA issue is already up to date')
+                logging.info('[%s] JIRA issue is already up to date', issue['key'])
                 continue
 
             # otherwise, update the JIRA issue with data from IRIS
+            logging.info('[%s] JIRA data will be updated', issue['key'])
             updated_fields = {
                 fields['Principal Investigator']['id']: iris_data['principal_investigator'],
                 fields['Primary Branch']['id']: {'value': iris_data['primary_branch']},
@@ -231,9 +248,9 @@ if __name__ == '__main__':
                 fields['Z1A']['id']: iris_data['z'],
             }
 
-            logging.info('[%s] JIRA data will be updated', issue['key'])
-            logging.info('[%s] JIRA data: \n%s', issue['key'], pformat(jira_data))
-            logging.info('[%s] IRIS data: \n%s', issue['key'], pformat(iris_data))
+            if args.dry_run:
+                logging.info('[%s] Dry run: skipping update', issue['key'])
+                continue
 
             logging.info('[%s] Updating JIRA: \n%s', issue['key'], pformat(updated_fields))
             update_issue(issue['key'], {'fields': updated_fields})
