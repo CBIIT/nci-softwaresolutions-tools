@@ -1,0 +1,7 @@
+{
+    "port": 9000,
+    "logging": {
+        "folder": "logs",
+        "level": "debug"
+    }
+}
