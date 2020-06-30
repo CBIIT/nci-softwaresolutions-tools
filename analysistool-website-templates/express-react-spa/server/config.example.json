@@ -3,5 +3,29 @@
     "logging": {
         "folder": "logs",
         "level": "debug"
+    },
+    "results": {
+        "folder": "results",
+        "maxAge": "2w"
+    },
+    "aws": {
+        "region:": "us-east-1",
+        "accessKeyId:": "",
+        "secretAccessKey:": ""
+    },
+    "queue": {
+        "url": "",
+        "errorUrl": "",
+        "visibilityTimeout": "",
+        "pollInterval": 60
+    },
+    "email": {
+        "admins": [""],
+        "sender": "",
+        "rootUrl": ""
+    },
+    "s3": {
+        "bucket": "",
+        "prefix": ""
     }
 }
