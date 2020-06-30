@@ -1,4 +1,6 @@
-module.exports = function calculate(params) {
+module.exports = {calculate, validate};
+
+function calculate(params) {
     /** Sample async calculation code */
     return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -6,4 +8,13 @@ module.exports = function calculate(params) {
             resolve({sum});
         }, 200);
     });
+}
+
+/**
+ * Validate parameters to ensure malicious objects are not processed
+ * @param {object} params 
+ */
+function validate(params) {
+    /** Implement validation logic */
+    return true;
 }
