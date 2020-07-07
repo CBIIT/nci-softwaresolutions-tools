@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Route, HashRouter as Router, useLocation } from 'react-router-dom';
+import { Route, BrowserRouter as Router, useLocation } from 'react-router-dom';
 import { Header } from './components/header/header';
 import { Footer } from './components/footer/footer';
 import { Navbar } from './components/navbar/navbar';
@@ -48,6 +48,7 @@ export function App() {
         <ResetScroll />
         <Route key="home-page" path="/" exact={true} component={Home} />
         <Route key="calculate-page" path="/calculate" component={Calculate} />
+        <Route key="calculate-page-results" path="/calculate/:id" component={Calculate} />
         <Route key="about-page" path="/about" component={About} />
       </main>
       <Footer 
