@@ -1,6 +1,9 @@
 {
-    "port": 9000,
-    "logging": {
+    "server": {
+        "port": 9000,
+        "static": "client/build"
+    },
+    "logs": {
         "folder": "logs",
         "level": "debug"
     },
@@ -20,7 +23,8 @@
         "pollInterval": 60
     },
     "email": {
-        "admins": [""],
+        "admin": "",
+        "support": "",
         "sender": "",
         "rootUrl": ""
     },
