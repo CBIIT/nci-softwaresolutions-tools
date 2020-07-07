@@ -12,7 +12,7 @@ const { validate } = require('./calculate');
 const app = express();
 
 // serve public folder
-app.use(express.static('client/build'));
+app.use(express.static(config.server.static));
 
 // json parser middleware
 app.use(express.json());
@@ -20,28 +20,15 @@ app.use(express.json());
 // compress all responses
 app.use(compression());
 
-// create required folders 
-const requiredFolders = [
-    config.logging.folder, 
-    config.results.folder,
-];
-for (let folder of requiredFolders) {
-    fs.mkdirSync(folder, {recursive: true});
-}
-
-// update aws configuration if all keys are supplied, otherwise
-// fall back to default credentials/IAM role
-if (config.aws && 
-    config.aws.region && 
-    config.aws.accessKeyId && 
-    config.aws.secretAccessKey) {
-    AWS.config.update(config.aws);
-}
-
 // log requests
 app.use((request, response, next) => {
     logger.info([request.url, JSON.stringify(request.body)].join(' '));
     next();
+});
+
+// healthcheck route
+app.get('/ping', (request, response) => {
+    response.json(true);
 });
 
 // handle submission
@@ -99,32 +86,38 @@ app.get('/fetch-results', async (request, response) => {
 
         // find objects which use the specified id as the prefix
         const objects = await s3.listObjectsV2({
-            prefix: `${config.s3.prefix}/${id}/`
+            Bucket: config.s3.bucket,
+            prefix: `${config.s3.prefix}/${id}`
         }).promise();
 
         // validate existence of results
         if (!(objects.Contents && objects.Contents.length > 0))
             throw(`Results do not exist for id: ${id}`);
 
+        // create results folder
+        const resultsFolder = path.resolve(
+            config.results.folder,
+            path.basename(key),
+        );
+        await fs.mkdir(resultsFolder);            
+
         // download results
         for (let key of objects.Contents) {
-            logger.info(`Downloading result: ${key}`);
-            const object = await s3.getObject(key).promise();
-            
-            const filepath = path.resolve(
-                config.folder.result,
+            logger.info(`Downloading file: ${key}`);
 
-                path.basename(key),
-            )
-            await fs.writeFile()
-            
-            fs.writeFileSync(
-                path.resolve(config.folder.result, key),
-                object.Body
+            const filename = path.basename(key);
+            const s3Object = await s3.getObject({
+                Bucket: bucket,
+                Key: key
+            }).promise();
+
+            await fs.writeFile(
+                path.resolve(resultsFolder, filename),
+                s3Object.Body
             );
         }
 
-        let resultsFile = path.resolve(config.results.folder, `${id}.json`);
+        let resultsFile = path.resolve(resultsFolder, `results.json`);
         if (fs.existsSync(resultsFile))
             response.sendFile(resultsFile);
         else
@@ -134,47 +127,36 @@ app.get('/fetch-results', async (request, response) => {
         logger.error(error);
         response.status(500).json(error.toString());
     }
-
-
-    try {
-        const s3 = new AWS.S3();
-        const id = request.params.id;
-        if (!id) return response.status(400).error('Invalid ID');
-
-
-
-        
-        // upload results object to S3
-        await s3.putObject({
-            Body: JSON.stringify(results),
-            Bucket: config.s3.bucket,
-            Key: config.s3.prefix + `/${id}/results.json`
-        }).promise();
-
-
-
-
-        let params = request.body;
-        params.id = crypto.randomBytes(16).toString('hex');
-        params.originalTimestamp = new Date().getTime();
-
-        // maximum message size is 256 KB
-        // if larger messages need to be queued, upload message to s3
-        // and specify the bucket/key in the message
-        const results = await new AWS.SQS().sendMessage({
-            QueueUrl: config.queue.url,
-            MessageBody: JSON.stringify(params),
-        }).promise();
-
-        logger.info(`Enqueued message: ${results.MessageId}`);
-        response.json(true);
-    } catch(error) {
-        logger.error(error);
-        response.status(500).json(error.toString());
-    }
 });
 
+// serve index file, substituting base href for html5-routed pages
+app.get('*/*', async (request, response) => {
+    const indexTemplate = await fs.readFile(`${config.server.static}/index.html`);
+
+    // determine base href from request url
+    const baseHref = request.url
+        .replace(/^\/+|\/+$/g, '')  // strip leading/ending slashes
+        .replace(/[^/]+/g, '..');   // replace path components with '..'
+
+    // set base href based on number of nested directories    
+    const indexHtml = indexTemplate
+        .toString()
+        .replace(`<base href=".">`, `<base href="${baseHref}">`)
+    response.send(indexHtml)
+})
+
 // start application
-app.listen(config.port, () => {
-    logger.info(`Application is running on port: ${config.port}`)
+app.listen(config.server.port, async () => {
+    logger.info(`Application is running on port: ${config.server.port}`);
+
+    // update aws configuration if all keys are supplied, otherwise
+    // fall back to default credentials/IAM role
+    if (config.aws) {
+        AWS.config.update(config.aws);
+    }
+
+    // create required folders 
+    for (let folder of [config.logs.folder, config.results.folder]) {
+        await fs.mkdir(folder, {recursive: true});
+    }
 });
