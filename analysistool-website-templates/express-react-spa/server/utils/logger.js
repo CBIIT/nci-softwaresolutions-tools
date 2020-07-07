@@ -5,7 +5,7 @@ const config = require('../config.json');
 require('winston-daily-rotate-file');
 
 module.exports = new createLogger({
-  level: config.logging.level || 'info',
+  level: config.logs.level || 'info',
   format: format.combine(
     format.errors({ stack: true }),
     // format.colorize(),
@@ -24,7 +24,7 @@ module.exports = new createLogger({
   ),
   transports: [
     new (transports.DailyRotateFile)({
-      filename: path.resolve(config.logging.folder, 'application-%DATE%.log'),
+      filename: path.resolve(config.logs.folder, 'application-%DATE%.log'),
       datePattern: 'YYYY-MM-DD-HH',
       zippedArchive: false,
       maxSize: '1024m',
