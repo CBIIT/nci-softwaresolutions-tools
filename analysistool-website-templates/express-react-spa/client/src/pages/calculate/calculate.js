@@ -5,30 +5,39 @@ import { InputForm } from './input-form';
 import { Results } from './results';
 import { fetchJSON } from '../../services/query';
 
+import {
+    dispatchCalculate, getInitialState,
+} from '../../services/store';
+import { useSelector } from 'react-redux';
+
 export function Calculate() {
-    const [results, setResults] = useState({});
-    const [messages, setMessages] = useState([]);
-    const [loading, setLoading] = useState(false);
+
+    /** Getters for values in redux */
+    const{
+        results,
+        messages,
+        loading,
+    } = useSelector((state) => state.calculate);
 
     /**
      * Handles form submission and saves results
      * @param {object} params 
      */
     async function handleSubmit(params) {
-        setResults({});
-        setMessages([]);
+        dispatchCalculate({ results: {} })
+        dispatchCalculate({ messages: [] })
 
         try {
-            setLoading(true);
+            dispatchCalculate({ loading: true })
             const results = await fetchJSON('submit', {
                 method: 'POST',
                 body: params
             });
-            setResults(results);
+            dispatchCalculate({ results: results })
         } catch (error) {
-            setMessages([{ type: 'danger', text: error }]);
+            dispatchCalculate({ messages: [{ type: 'danger', text: error }] })
         } finally {
-            setLoading(false);
+            dispatchCalculate({ loading: false })
         }
     }
 
@@ -36,9 +45,7 @@ export function Calculate() {
      * Handles form reset events
      */
     function handleReset() {
-        setResults({});
-        setMessages([]);
-        setLoading(false);
+        dispatchCalculate(getInitialState().calculate)
     }
 
     /**
@@ -46,7 +53,8 @@ export function Calculate() {
      * @param {number} index 
      */
     function removeMessage(index) {
-        setMessages(messages.filter((e, i) => i !== index))
+        const messageList = messages.filter((e, i) => i !== index);
+        dispatchCalculate({ messages: messageList });
     }
 
     return (
