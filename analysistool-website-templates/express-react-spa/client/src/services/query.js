@@ -1,53 +1,34 @@
-
 /**
- * Converts an object to a query string
- * @param {{[s: string]: any}} params Specifies the object to convert
- * @returns {string} The converted query string
+ * Serializes an object as a query string
+ * @param {object} obj
  */
-export function asQueryString(params) {
-    return '?' + Object.entries(params)
-        .map(keyValue => keyValue
-            .map(String)
-            .map(encodeURIComponent)
-            .join('='))
-        .join('&')
+export function asQueryString(obj) {
+    const query = [];
+    for (let key in obj) {
+      let value = obj[key];
+  
+      // treat arrays as comma-delineated lists
+      if (Array.isArray(value)) 
+        value = value.join(',');
+  
+      // exclude undefined or null values
+      if (![undefined, null].includes(value))
+        query.push([key, value].map(encodeURIComponent).join('='));
+    }
+    return '?' + query.join('&');
+}
+  
+export function fetchJSON(url, params) {
+    return fetch(url, {
+        ...params,
+        headers: {
+            ...(params ? params.headers : null), 
+            'Content-Type': 'application/json',
+            'Accept': 'applciation/json',
+        },
+    }).then(response => response.json());
 }
 
-/**
- * Fetches a JSON resource
- * @param {string} url - Specifies URL of resource to fetch.
- * @param {object} options - Specifies options passed to fetch.
- * If options.params exists, it will be converted to a query
- * string and appended to the url
- * @returns {Promise<object>} A JSON resource
- * @throws {Promise<string>} The response body if an exception occured
- */
-export async function fetchJSON(url, options) {
-
-    // converts query parameters to a string if provided
-    if (options.params) {
-        url += asQueryString(options.params);
-    }
-
-    // creates fetch options 
-    let fetchOptions = Object.assign({}, options, {
-        headers: {
-            ...options.headers,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: typeof options.body == 'string'
-            ? options.body
-            : JSON.stringify(options.body)
-    });
-
-    console.log(options, fetchOptions);
-
-    const response = await fetch(url, fetchOptions);
-
-    if (response.ok) {
-        return await response.json();
-    } else {
-        throw(await response.text());
-    }
+export function query(url, params, fetchParams) {
+    return fetchJSON(`${url}${asQueryString(params)}`, fetchParams);
 }

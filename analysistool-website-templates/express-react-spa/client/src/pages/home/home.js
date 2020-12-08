@@ -2,77 +2,31 @@ import React from 'react';
 import { NavLink } from 'react-router-dom'
 
 export function Home() {
-
-    /** Properties to customize the main section, which contins the tool's name, description, and a call to action (button) */
-    const mainSection = {
-        title: 'Tool Name Placeholder',
-        description: 'Tool description placeholder',
-        actionLink: {
-            route: '/calculate',
-            children: 'Action Placeholder'
-        }
-    };
-
-    /** Properties for cards which will be displayed under the main section on the home page */
-    const cards = [
-        {
-            title: 'Sample',
-            body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer a urna non ligula molestie lacinia. Quisque fermentum quam porttitor, scelerisque orci sit amet, ornare lacus.',
-            link: {route: '/action', children: 'Action'},
-        },
-        {
-            title: 'Calculate',
-            body: 'Ut hendrerit augue id enim malesuada tincidunt. Quisque fermentum convallis mi, vel placerat sem tempor at. Maecenas pulvinar in ligula ultrices elementum. Sed sed enim vestibulum, convallis eros ut, mattis enim.',
-            link: {route: '/calculate', children: 'Calculate'},
-        },
-        {
-            title: 'About',
-            body: 'Integer luctus ex mauris, eget feugiat est accumsan sed. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer et ex sed massa accumsan ultricies in nec sem. Donec lacinia purus diam, nec semper magna bibendum a.',
-            link: {route: '/about', children: 'Read More'},
-        },
-    ];
-
     return <>
-        <section className="jumbotron jumbotron-fluid text-light bg-primary-darker">
-            <div className="container">
+        <div className="jumbotron jumbotron-fluid text-light bg-primary">
+            <div className="banner-text container">
                 <h1 className="display-4 mb-4">
                     <span className="d-inline-block py-4" style={{ borderBottom: '2px solid white' }}>
-                        {mainSection.title}
+                        Application Name
                     </span>
                 </h1>
+
                 <p className="lead">
-                    {mainSection.description}
+                    Application Description
                 </p>
-                <NavLink to={mainSection.actionLink.route} className="btn btn-lg btn-outline-light">
-                    {mainSection.actionLink.children}
+                <NavLink className="btn btn-lg btn-outline-light" to="calculate">
+                    Action Link
                 </NavLink>
             </div>
-        </section>
+        </div>
+        <div className="container mb-4">
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam scelerisque ligula vel velit pulvinar, ac tempor urna finibus. Nullam ornare nibh vitae tellus cursus, nec consequat dui aliquam. Donec eget nisl eu ligula vulputate congue id fermentum tortor. In a augue a sem accumsan sagittis. Aenean commodo, purus at pretium ultricies, enim mauris mattis orci, nec porttitor tellus turpis eu sapien. Donec luctus, purus nec dapibus pharetra, libero lacus commodo ex, vitae pharetra enim orci eget nunc. Integer vitae turpis commodo, ullamcorper neque id, pretium sem. Aliquam tempor consequat nibh id tincidunt. Sed sed mauris eu lectus dignissim luctus. Donec ac sagittis sapien. Sed lobortis ipsum in sapien lacinia, eget imperdiet nisl molestie. Ut consequat, sem id gravida maximus, nibh elit ornare risus, non ullamcorper felis est eget lacus.
+            </p>
 
-        <section className="container mb-5">
-            <div className="row">
-                {cards.map((card, i) => 
-                    <div key={`home-card-${i}`} className="col-md-4 mb-4">
-                        <div className="card shadow h-100">
-                            <h2 className="h5 card-header bg-primary text-white">
-                                {card.title}
-                            </h2>
-
-                            <div className="card-body">
-                                <p className="card-text">
-                                    {card.body}
-                                </p>
-                            </div>
-
-                            <div className="card-footer bg-white border-0">
-                                <NavLink to={card.link.route} className="btn btn-primary btn-block">
-                                    {card.link.children}
-                                </NavLink>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </section>
+            <p>
+                Vestibulum non odio auctor, varius eros quis, mollis tortor. Aenean tincidunt metus ac ante condimentum maximus. Duis commodo odio nec eros condimentum, ut vulputate ligula placerat. Quisque mauris massa, imperdiet at auctor in, ultrices id mi. Phasellus eget ullamcorper purus. Curabitur ut dolor diam. Pellentesque laoreet massa et efficitur eleifend. Cras accumsan lectus at nulla facilisis aliquet. Donec bibendum felis at quam molestie, at mollis felis posuere. Praesent imperdiet nisl non dignissim congue. Praesent faucibus dapibus sagittis. Aliquam non est ultrices, porttitor diam non, lobortis velit. Praesent vulputate massa at tincidunt facilisis.
+            </p>
+        </div>
     </>
 }

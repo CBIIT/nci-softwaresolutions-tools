@@ -1,35 +1,10 @@
 {
     "server": {
-        "port": 9000,
-        "static": "client/build"
+        "port": 4000,
+        "client": "../client/build"
     },
     "logs": {
         "folder": "logs",
         "level": "debug"
-    },
-    "results": {
-        "folder": "results",
-        "maxAge": "2w"
-    },
-    "aws": {
-        "region:": "us-east-1",
-        "accessKeyId:": "",
-        "secretAccessKey:": ""
-    },
-    "queue": {
-        "url": "",
-        "errorUrl": "",
-        "visibilityTimeout": "",
-        "pollInterval": 60
-    },
-    "email": {
-        "admin": "",
-        "support": "",
-        "sender": "",
-        "rootUrl": ""
-    },
-    "s3": {
-        "bucket": "",
-        "prefix": ""
     }
 }

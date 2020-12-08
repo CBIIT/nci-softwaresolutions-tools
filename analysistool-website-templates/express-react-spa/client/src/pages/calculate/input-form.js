@@ -1,104 +1,95 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import{
-    dispatchInput,
-    getInitialState,
-} from "../../services/store";
+import React, { useState, useEffect } from 'react';
+import { Button, Card } from 'react-bootstrap';
+import { getInitialState } from '../../services/store/params';
 
-export function InputForm({ 
+export function InputForm({
     className = '', 
-    onSubmit = (formValue) => {},
-    onReset = (formValue) => {},
+    params, 
+    onSubmit = _ => {},
+    onReset = _ => {}
 }) {
+    const [formValue, setFormValue] = useState(params);
+    const [validated, setValidated] = useState(false);
+    useEffect(() => setFormValue(params), [params]);
 
-    /** Getters for values in redux */
-    const {
-        a,
-        b,
-        c,
-    } = useSelector((state) => state.input);
-
-    /**
-     * Merges an event target's value into redux store
-     * @param {React.FormEvent} event 
-     */
-    function handleChange(event) {
-        let { name, type, checked, value } = event.target;
-
-        if (type === 'checkbox')
-            value = Boolean(checked);
-
-        else if (type === 'number')
-            value = Number(value);
-
-        dispatchInput({[name]: value });
+    function handleSubmit(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        setValidated(true);
+        if (e.target.checkValidity()) 
+            onSubmit(formValue);
     }
 
-    /**
-     * Calls onSubmit with the current values in redux store
-     * @param {React.FormEvent} event 
-     */
-    function handleSubmit(event) {
-        event.preventDefault();
-        console.log({a,b,c})
-        onSubmit && onSubmit({a,b,c});
+    function handleReset(e) {
+        e.preventDefault();
+        setFormValue(getInitialState());
+        setValidated(false);
+        onReset();
     }
 
-    /**
-     * Resets redux store and calls onReset
-     * @param {React.FormEvent} event 
-     */
-    function handleReset(event) {
-        const initialState = getInitialState().input;
-        event.preventDefault();
-        dispatchInput(initialState);
-        onReset && onReset(initialState);
-    }
-
-    /**
-     * Validates current parameters
-     * @return {Boolean} True if valid, false if invalid
-     */
-    function validate() {
-        // sample validation logic
-        return (a && b && c);
+    function handleChange(ev) {
+        const { name, value } = ev.target;
+        setFormValue({
+            ...formValue,
+            [name]: value
+        });
     }
 
     return (
-        <form className={className}>
-            <div className="form-group">
-                <label htmlFor="a" className="font-weight-semibold">Value A</label>
-                <input type="number" id="a" name="a" className="form-control" value={a} onChange={handleChange} />
-            </div>
+        <form 
+            noValidate
+            className={validated ? 'was-validated' : 'needs-validation'}
+            onSubmit={handleSubmit} 
+            onReset={handleReset} >
+            <Card className={className}>
+                <Card.Header className="bg-primary text-white">
+                    <h1 className="h5 my-0">Parameters</h1>
+                </Card.Header>
+                <Card.Body>
+                    <div className="form-group">
+                        <label 
+                            htmlFor="a" 
+                            className="font-weight-bold">
+                            Parameter A
+                        </label>
+                        <input
+                            id="a" 
+                            name="a" 
+                            type="number"
+                            value={formValue.a}
+                            onChange={handleChange}
+                            className="form-control" 
+                            required />
+                        <div className="invalid-feedback">
+                            This field is required.
+                        </div>
+                    </div>
 
-            <div className="form-group">
-                <label htmlFor="b" className="font-weight-semibold">Value B</label>
-                <input type="number" id="b" name="b" className="form-control" value={b} onChange={handleChange} />
-            </div>
-
-            <div className="form-group">
-                <label htmlFor="c" className="font-weight-semibold">Value C</label>
-                <input type="number" id="c" name="c" className="form-control" value={c} onChange={handleChange} />
-            </div>
-
-            <div className="text-right">
-                <button
-                    type="reset"
-                    className="btn btn-outline-danger mr-1"
-                    onClick={handleReset}>
-                    Reset
-                </button>
-
-                <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={!validate()}
-                    onClick={handleSubmit}>
-                    Submit
-                </button>
-            </div>
-
-
+                    <div className="form-group">
+                        <label 
+                            htmlFor="b" 
+                            className="font-weight-bold">
+                            Parameter B
+                        </label>
+                        <input
+                            id="b" 
+                            name="b" 
+                            type="number"
+                            value={formValue.b}
+                            onChange={handleChange}
+                            className="form-control"
+                            required />
+                        <div className="invalid-feedback">
+                            This field is required.
+                        </div>                            
+                    </div>
+                        
+                </Card.Body>
+                <Card.Footer className="text-right bg-white">
+                    <Button variant="danger-outline" type="reset" className="mr-2">Clear</Button>
+                    <Button variant="primary" type="submit">Submit</Button>
+                </Card.Footer>
+            </Card>
         </form>
     );
 }

@@ -1,90 +1,80 @@
-import React, { useState } from 'react';
-import Alert from 'react-bootstrap/Alert';
-import { LoadingOverlay } from '../../components/loading-overlay/loading-overlay';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Alert } from 'react-bootstrap';
+import { LoadingOverlay } from '@cbiitss/react-components';
+import { actions as paramsActions } from '../../services/store/params';
+import { actions as resultsActions } from '../../services/store/results';
+import { actions as messagesActions } from '../../services/store/messages';
+import { fetchJSON } from '../../services/query';
 import { InputForm } from './input-form';
 import { Results } from './results';
-import { fetchJSON } from '../../services/query';
-
-import {
-    dispatchCalculate, getInitialState,
-} from '../../services/store';
-import { useSelector } from 'react-redux';
+const actions = { ...paramsActions, ...resultsActions, ...messagesActions };
 
 export function Calculate() {
+    const dispatch = useDispatch();
+    const params = useSelector(state => state.params)
+    const results = useSelector(state => state.results);
+    const messages = useSelector(state => state.messages);
+    const addMessage = message => dispatch(actions.addMessage(message));
+    const mergeResults = results => dispatch(actions.mergeResults(results));
+    const mergeParams = params => dispatch(actions.mergeParams(params));
+    const resetParams = _ => dispatch(actions.resetParams());
+    const resetResults = _ => dispatch(actions.resetResults());
+    const resetMessages = _ => dispatch(actions.resetMessages());
+    const removeMessageByIndex = index => dispatch(actions.removeMessageByIndex(index));
 
-    /** Getters for values in redux */
-    const{
-        results,
-        messages,
-        loading,
-    } = useSelector((state) => state.calculate);
-
-    /**
-     * Handles form submission and saves results
-     * @param {object} params 
-     */
     async function handleSubmit(params) {
-        dispatchCalculate({ results: {} })
-        dispatchCalculate({ messages: [] })
+        mergeParams(params);
+        resetResults();
+        resetMessages();
+        window.scrollTo(0, 0);
 
         try {
-            dispatchCalculate({ loading: true })
-            const results = await fetchJSON('submit', {
-                method: 'POST',
-                body: params
+            mergeResults({loading: true});
+            const results = await fetchJSON('api/submit', {
+                method: 'post',
+                body: JSON.stringify(params)
             });
-            dispatchCalculate({ results: results })
-        } catch (error) {
-            dispatchCalculate({ messages: [{ type: 'danger', text: error }] })
+            mergeResults({value: results});
+        } catch (e) {
+            addMessage({type: 'danger', text: e.message});
         } finally {
-            dispatchCalculate({ loading: false })
+            mergeResults({loading: false});
         }
     }
 
-    /**
-     * Handles form reset events
-     */
     function handleReset() {
-        dispatchCalculate(getInitialState().calculate)
+        resetParams();
+        resetResults();
+        resetMessages();
     }
-
-    /**
-     * Removes a message from the list of messages
-     * @param {number} index 
-     */
-    function removeMessage(index) {
-        const messageList = messages.filter((e, i) => i !== index);
-        dispatchCalculate({ messages: messageList });
-    }
-
-    return (
+    
+    return <>
+        <LoadingOverlay active={results.loading} overlayStyle={{ position: 'fixed' }} />
         <div className="container my-4">
-            <LoadingOverlay active={loading} />
-            <h1 className="h4 mb-4">Calculation</h1>
+
             <div className="row">
                 <div className="col-md-4">
-                    <div className="card shadow-sm h-100">
-                        <InputForm className="card-body" onSubmit={handleSubmit} onReset={handleReset} />
-                    </div>
+                    <InputForm 
+                        params={params} 
+                        onSubmit={handleSubmit} 
+                        onReset={handleReset}
+                        className="mb-4 shadow" />
                 </div>
                 <div className="col-md-8">
-                    <div className="card shadow-sm h-100">
-                        <div className="card-body">
-                            {messages.map((message, i) =>
-                                <Alert
-                                    key={`message-${i}`}
-                                    variant={message.type}
-                                    dismissible
-                                    onClose={e => removeMessage(i)}>
-                                    {message.text}
-                                </Alert>
-                            )}
-                            {<Results results={results} />}
-                        </div>
-                    </div>
+                    <Results results={results} params={params}>
+                        {messages.map((message, i) =>
+                            <Alert
+                                className="white-space-pre-wrap shadow"
+                                key={`results-alert-${i}`}
+                                variant={message.type}
+                                dismissible
+                                onClose={e => removeMessageByIndex(i)}>
+                                {message.text}
+                            </Alert>)}
+                    </Results>
                 </div>
             </div>
         </div>
-    );
-
+    </>
 }

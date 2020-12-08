@@ -3,29 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="" />
-    <base href=".">
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
+    <meta name="theme-color" content="#000000" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <title>Title Placeholder</title>
+    <title>Application Template</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <!-- React HashRouter compatible skip link -->
-    <a 
-      href="#main" 
-      class="sr-only sr-only-focusable d-block p-1 bg-primary text-white text-center" 
-      onclick="event.preventDefault(); document.querySelector('#main').focus()">
-      Skip to main content
-    </a>
     <div id="root"></div>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/babel-polyfill@6.26.0/dist/polyfill.min.js" integrity="sha256-WRc/eG3R84AverJv0zmqxAmdwQxstUpqkiE+avJ3WSo=" crossorigin="anonymous"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.4.0/dist/fetch.umd.js" integrity="sha256-17sG19PAt2IccZKY2F4xmrujlvGGvjxB0bxuxPuycMw=" crossorigin="anonymous"></script>
   </body>
 </html>
