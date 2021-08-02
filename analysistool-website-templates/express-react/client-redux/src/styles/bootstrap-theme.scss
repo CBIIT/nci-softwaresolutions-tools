@@ -1,0 +1,65 @@
+[react-cloak] {
+  display: none !important;
+}
+
+input::-webkit-calendar-picker-indicator,
+::-webkit-list-button {
+  display: none !important;
+}
+
+a,
+.fw-semibold {
+  font-weight: 500;
+}
+
+.vh-100 {
+  height: 100vh;
+}
+
+.bg-primary-darker {
+  background-color: $primary-darker !important;
+}
+
+/** Use consistent style for tabs/navbar links */
+@mixin nav-link {
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-left: none;
+  border-right: none;
+  color: $primary;
+  text-decoration: none;
+  transition: all 0.1s;
+  background-color: transparent;
+
+  &:hover,
+  &:focus {
+    color: $body-color;
+    border-color: transparent;
+  }
+  &.active {
+    color: $body-color;
+    border-color: transparent;
+    border-bottom-color: $primary;
+  }
+}
+
+.navbar-light {
+  .navbar-toggler {
+    border: none;
+  }
+
+  .navbar-nav .nav-link {
+    @include nav-link;
+  }
+}
+
+.nav-tabs .nav-link {
+  @include nav-link;
+}
+
+.cover-image {
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
