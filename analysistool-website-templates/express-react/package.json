@@ -1,0 +1,43 @@
+{
+  "name": "express-react-template",
+  "version": "1.0.0",
+  "description": "Sample project template using express and react",
+  "main": "server/server.js",
+  "scripts": {
+    "prepare": "husky install",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm test",
+    "test:server": "cd server && npm test",
+    "start:client": "cd client && npm start",
+    "start:server": "cd server && npm start",
+    "build:client": "cd client && npm run build",
+    "format": "prettier --write  --ignore-unknown ."
+  },
+  "keywords": [
+    "express",
+    "react"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "husky": "^6.0.0",
+    "lint-staged": "^11.0.0",
+    "prettier": "^2.3.1"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "quoteProps": "consistent",
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "htmlWhitespaceSensitivity": "ignore",
+    "singleQuote": false,
+    "jsxBracketSameLine": true
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
+}
