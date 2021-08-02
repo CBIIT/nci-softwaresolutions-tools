@@ -14,7 +14,8 @@
     "winston-daily-rotate-file": "^4.5.5"
   },
   "devDependencies": {
-    "jest": "^27.0.6"
+    "jest": "^27.0.6",
+    "supertest": "^6.1.4"
   },
   "jest": {
     "clearMocks": true,
