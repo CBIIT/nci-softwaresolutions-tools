@@ -7,7 +7,14 @@ test("api is defined", () => {
 
 test("api/ping returns true", async () => {
   const responseFn = jest.fn();
-  const { handle } = api.stack[-1];
-  await handle({ url: "/ping", method: "GET" }, { json: responseFn });
+  const { handle } = api.stack[1];
+  const request = { 
+    url: "/ping", 
+    method: "GET" 
+  };
+  const response = { 
+    json: responseFn 
+  };
+  await handle(request, response);
   expect(responseFn).toHaveBeenCalledWith(true);
 });

@@ -13,4 +13,13 @@ api.get(
   }),
 );
 
+api.post(
+  "/submit",
+  (request, response) => {
+    const params = request.body;
+    response.json({ params });
+  },
+);
+
+
 module.exports = { api };
