@@ -1,20 +1,25 @@
 const express = require("express");
+const request = require("supertest");
 const { api } = require("../services/api");
+let app = null;
+
+beforeEach(() => {
+  app = express();
+  app.use('/api', api);
+});
 
 test("api is defined", () => {
   expect(api).toBeDefined();
 });
 
-test("api/ping returns true", async () => {
-  const responseFn = jest.fn();
-  const { handle } = api.stack[1];
-  const request = { 
-    url: "/ping", 
-    method: "GET" 
-  };
-  const response = { 
-    json: responseFn 
-  };
-  await handle(request, response);
-  expect(responseFn).toHaveBeenCalledWith(true);
+test("GET api/ping returns true", async () => {
+  const response = await request(app).get("/api/ping");
+  expect(response.body).toBe(true);
 });
+
+test("POST api/submit returns params", async () => {
+  const params = {test: 1};
+  const response = await request(app).post("/api/submit").send(params);
+  expect(response.body.params).toStrictEqual(params);
+});
+

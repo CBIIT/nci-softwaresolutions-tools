@@ -5,6 +5,11 @@ test("formatRequest() returns a formatted string", () => {
   expect(result).toBe(`0.0.0.0 GET / HTTP/1.1 200 0 0 0ms "test-referrer" "jest-user-agent"`);
 });
 
+test("formatRequest() returns a formatted string when given no referrer or user-agent", () => {
+  const result = formatRequest(getMockRequest({'referrer': null, 'user-agent': null}), getMockResponse());
+  expect(result).toBe(`0.0.0.0 GET / HTTP/1.1 200 0 0 0ms "No Referrer" "No User-Agent"`);
+});
+
 test("logErrors() returns a middleware function", () => {
   const result = logErrors();
   expect(typeof result).toBe("function");
@@ -56,7 +61,7 @@ test("withAsync() correctly processes an error", () => {
   expect(next).toHaveBeenCalledWith(expectedError);
 });
 
-function getMockRequest() {
+function getMockRequest(headers) {
   return {
     _startTime: 0n,
     ip: "0.0.0.0",
@@ -69,6 +74,7 @@ function getMockRequest() {
         "content-length": 0,
         "referrer": "test-referrer",
         "user-agent": "jest-user-agent",
+        ...headers,
       }[key]),
     app: {
       locals: {
@@ -81,13 +87,14 @@ function getMockRequest() {
   };
 }
 
-function getMockResponse() {
+function getMockResponse(headers) {
   return {
     _endTime: 0n,
     statusCode: 200,
     get: (key) =>
       ({
         "content-length": 0,
+        ...headers,
       }[key]),
     on: (eventName, callback) => {
       callback();
