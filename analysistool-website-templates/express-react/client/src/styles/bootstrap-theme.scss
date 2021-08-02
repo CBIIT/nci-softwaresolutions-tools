@@ -16,6 +16,10 @@ a,
   height: 100vh;
 }
 
+.bg-primary-darker {
+  background-color: $primary-darker !important;
+}
+
 /** Use consistent style for tabs/navbar links */
 @mixin nav-link {
   border-top: 3px solid transparent;
