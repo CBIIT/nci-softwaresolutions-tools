@@ -16,12 +16,17 @@ function formatLog({ label, timestamp, level, message }) {
  * @param {object} config
  * @returns Logger
  */
-function getLogger(name, config = logConfig, formatter = formatLog) {
-  const { folder, level } = config;
+function getLogger(name = "app", config = logConfig, formatter = formatLog) {
+  const { folder, level } = {
+    folder: "logs",
+    level: "info",
+    ...config
+  };
+
   fs.mkdirSync(folder, { recursive: true });
 
   return new createLogger({
-    level: level || "info",
+    level: level,
     format: format.combine(
       format.timestamp({ format: "isoDateTime" }),
       format.label({ label: name }),
