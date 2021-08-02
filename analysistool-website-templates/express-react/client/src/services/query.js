@@ -1,11 +1,9 @@
-export function getResults(params) {
-  // replace the following stub
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve({
-        id: Math.floor(Math.random() * 1e9),
-        params,
-      });
-    }, Math.random() * 1000);
+export async function getResults(params) {
+  const response = await fetch('/api/submit', {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify(params),
   });
+  
+  return await response.json();
 }
