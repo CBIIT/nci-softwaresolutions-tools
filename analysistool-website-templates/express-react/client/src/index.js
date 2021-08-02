@@ -10,4 +10,5 @@ ReactDOM.render(
   document.getElementById("root"),
 );
 
+document.querySelector("[react-cloak]").removeAttribute("react-cloak");
 reportWebVitals(sendToGoogleAnalytics, console.debug);
