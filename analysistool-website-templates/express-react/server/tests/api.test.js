@@ -5,7 +5,7 @@ let app = null;
 
 beforeEach(() => {
   app = express();
-  app.use('/api', api);
+  app.use("/api", api);
 });
 
 test("api is defined", () => {
@@ -18,8 +18,7 @@ test("GET api/ping returns true", async () => {
 });
 
 test("POST api/submit returns params", async () => {
-  const params = {test: 1};
+  const params = { test: 1 };
   const response = await request(app).post("/api/submit").send(params);
   expect(response.body.params).toStrictEqual(params);
 });
-

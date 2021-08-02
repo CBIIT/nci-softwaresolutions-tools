@@ -1,6 +1,6 @@
-import { Provider } from 'react-redux'
+import { Provider } from "react-redux";
 import { HashRouter as Router, Route, NavLink } from "react-router-dom";
-import { store } from './services/store'
+import { store } from "./services/store";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";

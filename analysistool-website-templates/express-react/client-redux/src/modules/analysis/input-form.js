@@ -5,12 +5,12 @@ import { formValuesState } from "./analysis.state";
 const { mergeFormValues, resetFormValues } = formValuesState.actions;
 
 export default function InputForm({ onSubmit, onReset }) {
-  const formValues = useSelector(state => state.formValues);
+  const formValues = useSelector((state) => state.formValues);
   const dispatch = useDispatch();
 
   function handleChange(event) {
     let { name, value } = event.target;
-    dispatch(mergeFormValues({ [name]: value }))
+    dispatch(mergeFormValues({ [name]: value }));
   }
 
   function handleSubmit(event) {
@@ -22,7 +22,7 @@ export default function InputForm({ onSubmit, onReset }) {
 
   function handleReset(event) {
     event.preventDefault();
-    dispatch(resetFormValues())
+    dispatch(resetFormValues());
     resetFormValues();
     if (onReset) {
       onReset();

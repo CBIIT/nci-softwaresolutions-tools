@@ -20,7 +20,7 @@ function getLogger(name = "app", config = logConfig, formatter = formatLog) {
   const { folder, level } = {
     folder: "logs",
     level: "info",
-    ...config
+    ...config,
   };
 
   fs.mkdirSync(folder, { recursive: true });

@@ -81,11 +81,11 @@ export default function Analysis() {
                       <pre>{JSON.stringify(results, null, 2)}</pre>
                     </Tab.Pane>
                     <Tab.Pane eventKey="results-2">
-                      <h2 className="text-primary h3">Results  2</h2>
+                      <h2 className="text-primary h3">Results 2</h2>
                       <pre>{JSON.stringify(results, null, 2)}</pre>
                     </Tab.Pane>
                     <Tab.Pane eventKey="results-3">
-                      <h2 className="text-primary h3">Results  3</h2>
+                      <h2 className="text-primary h3">Results 3</h2>
                       <pre>{JSON.stringify(results, null, 2)}</pre>
                     </Tab.Pane>
                   </Tab.Content>

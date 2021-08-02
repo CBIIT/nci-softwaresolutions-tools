@@ -6,7 +6,7 @@ test("formatRequest() returns a formatted string", () => {
 });
 
 test("formatRequest() returns a formatted string when given no referrer or user-agent", () => {
-  const result = formatRequest(getMockRequest({'referrer': null, 'user-agent': null}), getMockResponse());
+  const result = formatRequest(getMockRequest({ "referrer": null, "user-agent": null }), getMockResponse());
   expect(result).toBe(`0.0.0.0 GET / HTTP/1.1 200 0 0 0ms "No Referrer" "No User-Agent"`);
 });
 

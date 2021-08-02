@@ -1,12 +1,12 @@
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const { port } = require('../../server/config');
+const { createProxyMiddleware } = require("http-proxy-middleware");
+const { port } = require("../../server/config");
 
-module.exports = function(app) {
+module.exports = function (app) {
   app.use(
-    '/api',
+    "/api",
     createProxyMiddleware({
       target: `http://localhost:${port}`,
       changeOrigin: true,
-    })
+    }),
   );
 };
