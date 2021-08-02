@@ -1,9 +1,0 @@
-{
-    "port": 3000,
-    "production": true,
-    "folders": {
-        "logs": "logs",
-        "input": "input",
-        "output": "output"
-    }
-}
