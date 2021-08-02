@@ -45,7 +45,7 @@ test("withAsync() returns a middleware function", () => {
 test("withAsync() correctly processes a request", () => {
   const next = jest.fn();
   const handler = jest.fn((request, response, next) => true);
-  const middleware = withAsync(fn);
+  const middleware = withAsync(handler);
   middleware(getMockRequest(), getMockResponse(), next);
   expect(handler).toHaveBeenCalled();
   expect(next).toHaveBeenCalledTimes(0);
@@ -57,7 +57,7 @@ test("withAsync() correctly processes an error", () => {
   const handler = jest.fn((request, response, next) => {
     throw expectedError;
   });
-  const middleware = withAsync(fn);
+  const middleware = withAsync(handler);
   middleware(getMockRequest(), getMockResponse(), next);
   expect(handler).toHaveBeenCalled();
   expect(next).toHaveBeenCalledWith(expectedError);
