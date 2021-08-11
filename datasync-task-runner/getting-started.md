@@ -22,7 +22,7 @@ If execution completed successfully, we may now proceed with configuring the Dat
 
 1. Download the DataSync task runner. 
 ```sh
-wget https://raw.githubusercontent.com/park-brian/datasync-task-runner/main/run-task.py
+wget https://raw.githubusercontent.com/CBIIT/nci-softwaresolutions-tools/master/datasync-task-runner/run-task.py
 
 chmod +x run-task.py
 ```
