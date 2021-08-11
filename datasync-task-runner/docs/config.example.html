@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>config.example.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>config.example.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <pre><code>Returns a dict which has the following configuration properties:
+- TaskArn [string] (optional)
+</code></pre>
+<ul>
+<li>If specified, does not create a new task and instead updates task metadata before execution</li>
+<li>Modifiable task properties include:<ul>
+<li>CloudWatchLogGroupArn</li>
+<li>Name</li>
+<li>Options</li>
+<li>Schedule</li>
+<li>Excludes</li>
+</ul>
+</li>
+<li>Source/destination location ARNs can not be modified for an existing task</li>
+<li>Metadata for existing nfs, smb, and object_storage locations can be updated but this may
+     not be appropriate in all cases, as previous task execution records will also refer to the 
+     updated location metadata. Instead, consider creating new tasks if location metadata must change.<ul>
+<li>CloudWatchLogGroupArn [string]</li>
+<li>SourceLocation [dict]</li>
+<li>DestinationLocation [dict]</li>
+<li>Name [string] (optional)</li>
+<li>Options [dict] (optional)</li>
+<li>Excludes [list] (optional)</li>
+</ul>
+</li>
+<li>If specified, sync excludes all files specified by the filters<ul>
+<li>Includes [list] (optional)</li>
+</ul>
+</li>
+<li>If specified, sync includes only files specified by the filters<ul>
+<li>Schedule [dict] (optional)</li>
+<li>Tags [list] (optional)</li>
+</ul>
+</li>
+<li>
+<p>Applied to DataSync task, overrides any existing tags</p>
+<p>Locations have the following properties:
+- LocationArn [string] (optional)
+   - If LocationArn is specified and Type and Config are not present, uses the location as-is
+   - If LocationArn is specified and Type and Config are present, updates the existing location&rsquo;s metadata if Type is nfs, object_storage, or smb
+   - If LocationArn is not specified, a new location using the specified Type and Config will be created.
+- Type [string] (required if LocationArn is not specified)
+   - If creating a new location (Arn not specified), options are:
+   - efs
+   - fsx_windows
+   - nfs
+   - object_storage
+   - s3
+   - smb
+   - If updating an existing location, options are:
+   - nfs
+   - object_storage
+   - smb
+- Config [dict] (required if LocationArn is not specified)
+   - If LocationArn does not exist, conforms to the request syntax for the CreateLocation APIs
+   - efs: https://docs.aws.amazon.com/datasync/latest/userguide/API_CreateLocationEfs.html
+   - fsx_windows: https://docs.aws.amazon.com/datasync/latest/userguide/API_CreateLocationFsxWindows.html
+   - nfs: https://docs.aws.amazon.com/datasync/latest/userguide/API_CreateLocationNfs.html
+   - object_storage: https://docs.aws.amazon.com/datasync/latest/userguide/API_CreateLocationObjectStorage.html
+   - s3: https://docs.aws.amazon.com/datasync/latest/userguide/API_CreateLocationS3.html
+   - smb: https://docs.aws.amazon.com/datasync/latest/userguide/API_CreateLocationSmb.html
+   - If LocationArn exists, conforms to the request syntax for the UpdateLocation APIs
+   - nfs: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationNfs.html
+   - object_storage: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationObjectStorage.html
+   - smb: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationSmb.html</p>
+<p>Include/Exclude lists contain FilterRule items (https://docs.aws.amazon.com/datasync/latest/userguide/API_FilterRule.html):
+- FilterType [string]
+   - &ldquo;SIMPLE_PATTERN&rdquo;
+- Value [string] 
+   - A regular expression which specifies patterns to include or exclude</p>
+<p>Options is a dict with the following properties (https://docs.aws.amazon.com/datasync/latest/userguide/API_Options.html):
+- Atime [string]: NONE | BEST_EFFORT
+- BytesPerSecond [number] 
+- Gid [string]: NONE | INT_VALUE | NAME | BOTH
+- LogLevel [string]: OFF | BASIC | TRANSFER
+- Mtime [string]: NONE | PRESERVE
+- OverwriteMode [string]: ALWAYS | NEVER
+- PosixPermissions [string]: NONE | PRESERVE
+- PreserveDeletedFiles [string]: PRESERVE | REMOVE
+- PreserveDevices [string]: NONE | PRESERVE
+- SecurityDescriptorCopyFlags [string]: NONE | OWNER_DACL | OWNER_DACL_SACL
+- TaskQueueing [string]: ENABLED | DISABLED 
+- TransferMode [string]: CHANGED | ALL
+- Uid [string]: NONE | INT_VALUE | NAME | BOTH
+- VerifyMode [string]: POINT_IN_TIME_CONSISTENT | ONLY_FILES_TRANSFERRED | NONE</p>
+<p>Schedule specifies a ScheduleExpression (https://docs.aws.amazon.com/datasync/latest/userguide/API_TaskSchedule.html)
+- ScheduleExpression [string]
+   - A cron expression that specifies when to execute the task
+   - Note that task executions can not be customized when using the DataSync scheduler. For more flexibility,
+ consider running a cron job on the host which executes run-task.py on a regular basis. </p>
+<p>Tags contains TagListEntry objects (https://docs.aws.amazon.com/datasync/latest/userguide/API_TagListEntry.html)
+- Key [string]
+- Value [string]</p>
+<p>Returns:
+   [dict]: A configuration object</p>
+</li>
+</ul>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">configure_task</span><span class="p">():</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;TaskArn&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:datasync:&lt;region&gt;:&lt;account&gt;:task/&lt;task-id&gt;&quot;</span>
+    <span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <pre><code>An optional callback invoked before task configuration - used for 
+preprocessing files or verifying locations, for example. 
+If False is returned, the task is not created.
+
+Args:
+</code></pre>
+<p>task_status ([dict]): DataSync API response for task status (https://docs.aws.amazon.com/datasync/latest/userguide/API_DescribeTask.html#API_DescribeTask_ResponseSyntax)
+   task_execution_status ([dict]): DataSync API response for task execution status (https://docs.aws.amazon.com/datasync/latest/userguide/API_DescribeTaskExecution.html#API_DescribeTaskExecution_ResponseSyntax)</p>
+<pre><code>Returns:
+</code></pre>
+<p>[bool]: If True, proceeds with task creation. If False, cancels task creation.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">before_task_configuration</span><span class="p">():</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="kc">True</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <pre><code>An optional callback invoked before task execution. Return False to 
+cancel task execution (eg: if only task creation is desired)
+
+Args:
+</code></pre>
+<p>task_status ([dict]): DataSync API response for task status (https://docs.aws.amazon.com/datasync/latest/userguide/API_DescribeTask.html#API_DescribeTask_ResponseSyntax)
+   task_execution_status ([dict]): DataSync API response for task execution status (https://docs.aws.amazon.com/datasync/latest/userguide/API_DescribeTaskExecution.html#API_DescribeTaskExecution_ResponseSyntax)</p>
+<pre><code>Returns:
+</code></pre>
+<p>[bool]: If True, proceeds with task execution. If False, cancels task execution.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">before_task_execution</span><span class="p">(</span><span class="n">task_status</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="k">return</span> <span class="kc">True</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <pre><code>An optional callback invoked at at regular intervals during task execution. 
+If False is returned, task execution is canceled.
+
+Args:
+</code></pre>
+<p>task_status ([dict]): DataSync API response for task status (https://docs.aws.amazon.com/datasync/latest/userguide/API_DescribeTask.html#API_DescribeTask_ResponseSyntax)
+   task_execution_status ([dict]): DataSync API response for task execution status (https://docs.aws.amazon.com/datasync/latest/userguide/API_DescribeTaskExecution.html#API_DescribeTaskExecution_ResponseSyntax)</p>
+<pre><code>Returns:
+</code></pre>
+<p>[bool]: If True, continues task execution. If False, cancels task execution.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">during_task_execution</span><span class="p">(</span><span class="n">task_status</span><span class="p">,</span> <span class="n">task_execution_status</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="nb">print</span><span class="p">(</span><span class="n">task_status</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">task_execution_status</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <pre><code>A callback function which is invoked after task completion.
+
+Runs after task completion, useful for examining execution status,
+sending execution results to a custom logging service, etc.
+
+Args:
+</code></pre>
+<p>task_execution_status ([dict]): DataSync API response for task execution status</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">after_task_execution</span><span class="p">(</span><span class="n">task_status</span><span class="p">,</span> <span class="n">task_execution_status</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="nb">print</span><span class="p">(</span><span class="n">task_status</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">task_execution_status</span><span class="p">)</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>
