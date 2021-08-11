@@ -189,7 +189,7 @@ def update_task(config: dict):
     return task_config.get("TaskArn")
 
 
-def create_task(config_filepath, task_check_interval=5):
+def main(config_filepath, task_check_interval=5):
     # check if config file exists
     if not os.path.isfile(config_filepath):
         raise FileNotFoundError(config_filepath)
@@ -214,21 +214,11 @@ def create_task(config_filepath, task_check_interval=5):
         logging.info(f"[{task_arn}] updated")
 
 
-    # wait until task has been created
-    task_status = {}
-    while task_status.get("Status") not in ["AVAILABLE", "UNAVAILABLE", "QUEUED"]:
-        task_status = datasync_client.describe_task(TaskArn=task_arn)
-        time.sleep(task_check_interval)
-
-    if task_status.get("Status") == "UNAVAILABLE":
-        raise InvalidArnException(f"[{task_arn}] task is unavailable ")
-
-
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Execute a DataSync task with the given configuration"
+        description="Create a DataSync task with the given configuration"
     )
     parser.add_argument(
         "-c",
@@ -238,4 +228,4 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    create_task(args.config_file)
+    main(args.config_file)
