@@ -5,10 +5,6 @@ import boto3
 import json
 from botocore.exceptions import InvalidConfigError
 
-# set up loggging
-logging.basicConfig(filename="create-task.log", encoding="utf-8", level=logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler())
-
 datasync_client = boto3.client("datasync")
 
 def update_location(options: dict):
