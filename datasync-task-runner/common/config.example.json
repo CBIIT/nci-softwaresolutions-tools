@@ -1,0 +1,25 @@
+{
+  "CloudWatchLogGroupArn": "arn:aws:logs:<region>:<account>:log-group:<task-log-group>:*",
+  "SourceLocation": {
+    "Type": "nfs",
+    "Config": {
+      "ServerHostname": "source-server-hostname",
+      "Subdirectory": "/source/location/",
+      "OnPremConfig": {
+        "AgentArns": [
+          "arn:aws:datasync:<region>:<account>:agent/<datasync-agent-id>"
+        ]
+      }
+    }
+  },
+  "DestinationLocation": {
+    "Type": "s3",
+    "Config": {
+      "S3BucketArn": "arn:aws:s3:::<destination-bucket>",
+      "S3Config": {
+        "BucketAccessRoleArn": "arn:aws:iam::<account>:role/<s3-access-role>"
+      },
+      "Subdirectory": "/destination/location/"
+    }
+  }
+}
