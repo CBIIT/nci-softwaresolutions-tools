@@ -1,0 +1,3 @@
+{
+  "TaskArn": "arn:aws:datasync:<region>:<account>:task/<task-id>"
+}
