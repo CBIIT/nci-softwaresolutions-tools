@@ -14,7 +14,7 @@ This tool wraps AWS DataSync to provide customizable task creation and execution
 1. Create a DataSync Agent. Ensure the DataSync agent host has at least 4 cores, 32GB ram, and 80 GB of disk space.
 2. Create a trust policy which allows DataSync to assume an IAM role. Also, create any IAM roles which the DataSync Agent may use to access location resources (eg: read/write access to s3 buckets). https://docs.aws.amazon.com/datasync/latest/userguide/using-identity-based-policies.html
 3. Create a policy which allows the DataSync Agent to write logs to Cloudwatch (eg: PutLogEvents and CreateLogStream). https://docs.aws.amazon.com/datasync/latest/userguide/monitor-datasync.html#cloudwatchlogs
-4. Create an IAM role which allows access to all DataSync resources (eg: using the AWSDataSyncFullAccess policy)
+4. Create an IAM role which allows access to DataSync and CloudWatchLogs resources and actions required for your use case.
 5. Ensure that the host which will execute the DataSync task runner has been assigned the IAM role created in the previous step.
 6. Ensure python 3 and boto3 are installed on the host.
 
