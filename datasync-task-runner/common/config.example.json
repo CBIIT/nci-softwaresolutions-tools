@@ -1,15 +1,16 @@
 {
-  "CloudWatchLogGroupArn": "arn:aws:logs:<region>:<account>:log-group:<task-log-group>:*",
+  "CloudWatchLogGroup": "task-log-group",
   "SourceLocation": {
-    "Type": "nfs",
+    "Type": "smb",
     "Config": {
-      "ServerHostname": "source-server-hostname",
-      "Subdirectory": "/source/location/",
-      "OnPremConfig": {
-        "AgentArns": [
-          "arn:aws:datasync:<region>:<account>:agent/<datasync-agent-id>"
-        ]
-      }
+      "AgentArns": [
+        "arn:aws:datasync:<region>:<account>:agent/<datasync-agent-id>"
+      ],
+      "ServerHostname": "string",
+      "Domain": "string",
+      "User": "string",
+      "Password": "string",
+      "Subdirectory": "string"
     }
   },
   "DestinationLocation": {
@@ -21,5 +22,13 @@
       },
       "Subdirectory": "/destination/location/"
     }
-  }
+  },
+  "Options": { 
+    "LogLevel": "TRANSFER",
+    "OverwriteMode": "ALWAYS",
+    "PreserveDeletedFiles": "PRESERVE",
+    "TaskQueueing": "ENABLED",
+    "TransferMode": "CHANGED",
+    "VerifyMode": "ONLY_FILES_TRANSFERRED"
+ }
 }
