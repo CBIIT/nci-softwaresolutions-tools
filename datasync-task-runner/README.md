@@ -30,21 +30,22 @@ python3 common/create-task.py --config-file config.json
 
 #### Example Configuration File (`config.json`)
 
-Creates a task, as well as source and destination locations. The source location is a NFS mount, and the destination location is an S3 bucket.
+Creates a task, as well as source and destination locations. The source location is a SMB server file system, and the destination location is a S3 bucket.
 
 ```json
 {
-  "CloudWatchLogGroupArn": "arn:aws:logs:<region>:<account>:log-group:<task-log-group>:*",
+  "CloudWatchLogGroup": "task-log-group",
   "SourceLocation": {
-    "Type": "nfs",
+    "Type": "smb",
     "Config": {
-      "ServerHostname": "source-server-hostname",
-      "Subdirectory": "/source/location/",
-      "OnPremConfig": {
-        "AgentArns": [
-          "arn:aws:datasync:<region>:<account>:agent/<datasync-agent-id>"
-        ]
-      }
+      "AgentArns": [
+        "arn:aws:datasync:<region>:<account>:agent/<datasync-agent-id>"
+      ],
+      "ServerHostname": "string",
+      "Domain": "string",
+      "User": "string",
+      "Password": "string",
+      "Subdirectory": "string",
     }
   },
   "DestinationLocation": {
