@@ -7,7 +7,7 @@ from boto3 import client
 def run_task(config):
     # assume folder name is YYYY-MM-DD
     yesterday = date.today() - timedelta(days=1)
-    folder = yesterday.strftime("%Y-%m-%d")
+    folder = "/" + yesterday.strftime("%Y-%m-%d")
 
     # execute task and return ARN
     return client("datasync").start_task_execution(
