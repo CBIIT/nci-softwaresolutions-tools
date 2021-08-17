@@ -8,50 +8,6 @@ from botocore.exceptions import InvalidConfigError
 datasync_client = boto3.client("datasync")
 logs_client = boto3.client("logs")
 
-def update_location(options: dict):
-    """
-    Updates a DataSync location's metadata
-
-    Args:
-        options (dict): A dictionary containing LocationArn, Type, and Config properties
-        - LocationArn [string]
-        - Type [string]
-            - nfs
-            - object_storage
-            - smb
-        - Config [dict]
-            - Conforms to the request syntax for the UpdateLocation APIs
-            - nfs: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationNfs.html
-            - object_storage: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationObjectStorage.html
-            - smb: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationSmb.html
-
-    Raises:
-        InvalidConfigError: If LocationArn is not specified, or an invalid Type is specified
-
-    Returns:
-        [string]: The updated location's ARN
-    """
-
-    location_arn = options.get("LocationArn")
-    type = options.get("Type", "").lower()
-    config = options.get("Config", {})
-
-    if location_arn is None:
-        raise InvalidConfigError("Please specify a location ARN")
-
-    config.update(LocationArn=location_arn)
-
-    if type == "nfs":
-        datasync_client.update_location_nfs(**config)
-
-    elif type == "object_storage":
-        datasync_client.update_location_object_storage(**config)
-
-    elif config["type"] == "smb":
-        datasync_client.update_location_smb(**config)
-
-    return location_arn
-
 
 def create_location(options):
     """
@@ -105,6 +61,54 @@ def create_location(options):
 
     else:
         raise InvalidConfigError("Please specify a valid location type")
+
+
+def update_location(options: dict):
+    """
+    Updates a DataSync location's metadata
+
+    Args:
+        options (dict): A dictionary containing LocationArn, Type, and Config properties
+        - LocationArn [string]
+        - Type [string]
+            - nfs
+            - object_storage
+            - smb
+        - Config [dict]
+            - Conforms to the request syntax for the UpdateLocation APIs
+            - nfs: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationNfs.html
+            - object_storage: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationObjectStorage.html
+            - smb: https://docs.aws.amazon.com/datasync/latest/userguide/API_UpdateLocationSmb.html
+
+    Raises:
+        InvalidConfigError: If LocationArn is not specified, or an invalid Type is specified
+
+    Returns:
+        [string]: The updated location's ARN
+    """
+
+    location_arn = options.get("LocationArn")
+    type = options.get("Type", "").lower()
+    config = options.get("Config", {})
+
+    if location_arn is None:
+        raise InvalidConfigError("Please specify a location ARN")
+
+    config.update(LocationArn=location_arn)
+
+    if type == "nfs":
+        datasync_client.update_location_nfs(**config)
+
+    elif type == "object_storage":
+        datasync_client.update_location_object_storage(**config)
+
+    elif type == "smb":
+        datasync_client.update_location_smb(**config)
+
+    else:
+        raise InvalidConfigError("Please specify a valid location type")
+
+    return location_arn
 
 
 def create_task(config: dict):
@@ -162,12 +166,12 @@ def update_task(config: dict):
 def get_cloudwatch_log_group(name: str):
     response = logs_client.describe_log_groups(logGroupNamePrefix=name)
 
-
     for item in response['logGroups']:
         if item['logGroupName'] == name:
             return item
     
     return None
+
 
 def create_cloudwatch_log_group(name: str):
     log_group = get_cloudwatch_log_group(name)
