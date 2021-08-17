@@ -6,6 +6,7 @@ import json
 from botocore.exceptions import InvalidConfigError
 
 datasync_client = boto3.client("datasync")
+logs_client = boto3.client("logs")
 
 def update_location(options: dict):
     """
@@ -32,7 +33,7 @@ def update_location(options: dict):
     """
 
     location_arn = options.get("LocationArn")
-    type = options.get("Type")
+    type = options.get("Type", "").lower()
     config = options.get("Config", {})
 
     if location_arn is None:
@@ -81,7 +82,7 @@ def create_location(options):
         [string]: The new location's ARN
     """
 
-    type = options.get("Type")
+    type = options.get("Type", "").lower()
     config = options.get("Config", {})
 
     if type == "efs":
@@ -99,7 +100,7 @@ def create_location(options):
     elif type == "s3":
         return datasync_client.create_location_s3(**config)["LocationArn"]
 
-    elif config["type"] == "smb":
+    elif "type" == "smb":
         return datasync_client.create_location_smb(**config)["LocationArn"]
 
     else:
@@ -158,7 +159,36 @@ def update_task(config: dict):
     return task_config.get("TaskArn")
 
 
+def get_cloudwatch_log_group(name: str):
+    response = logs_client.describe_log_groups(logGroupNamePrefix=name)
+
+
+    for item in response['logGroups']:
+        if item['logGroupName'] == name:
+            return item
+    
+    return None
+
+def create_cloudwatch_log_group(name: str):
+    log_group = get_cloudwatch_log_group(name)
+
+    if log_group:
+      return log_group
+    
+    else:
+        logs_client.create_log_group(logGroupName=name)
+        return get_cloudwatch_log_group(name)
+
+
 def main(task_config):
+    # ensure log group exists
+    if "CloudWatchLogGroup" in task_config:
+        cloudwatch_log_group = create_cloudwatch_log_group(task_config.get("CloudWatchLogGroup"))
+        task_config.update("CloudWatchLogGroupArn", cloudwatch_log_group["arn"])
+
+    if "CloudWatchLogGroupArn" not in task_config:
+        raise InvalidConfigError("Please specify a CloudWatchLogGroup or CloudWatchLogGroupArn")
+
     if task_config.get("TaskArn"):
         task_arn = update_task(task_config)
         logging.info(f"[created] {task_arn}")
